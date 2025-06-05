@@ -3,7 +3,7 @@ RUN useradd -ms /bin/sh -u 1001 app
 
 ENV POETRY_VIRTUALENVS_CREATE=false
 
-WORKDIR app/
+WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
 COPY --chown=app:app domus_backend ./domus_backend
