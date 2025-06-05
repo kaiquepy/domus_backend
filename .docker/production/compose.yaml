@@ -1,6 +1,7 @@
 services:
   domus_database:
     image: postgres
+    container_name: domus_database
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
@@ -12,46 +13,24 @@ services:
 
   domus_app:
     image: ghcr.io/kaiquepy/domus_backend:main
-    ports:
-      - "8000"
+    container_name: domus_backend
     depends_on:
       - domus_database
     environment:
       DATABASE_URL: postgresql+psycopg://app_user:app_password@domus_database:5432/app_db
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.domus-app.rule=Host(`domus.lat`)"
-      - "traefik.http.routers.domus-app.entrypoints=websecure"
-      - "traefik.http.routers.domus-app.tls=true"
-      - "traefik.http.routers.domus-app.tls.certresolver=le"
-      - "traefik.http.services.domus-app.loadbalancer.server.port=8000"
-
-  reverse-proxy:
-    image: traefik:v3.4
-    command:
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.le.acme.email=kvieiramiranda@gmail.com
-      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
-      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
-      - --entrypoints.web.http.redirections.entryPoint.to=websecure
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
 
   watchtower:
     image: containrrr/watchtower
+    container_name: domus_watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
     command: --interval 30
 
+networks:
+  default:
+    external: true
+    name: proxy_network
+
 volumes:
   pgdata:
-  letsencrypt:
-    driver: local
