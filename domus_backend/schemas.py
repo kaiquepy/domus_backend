@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 
 class UserPublic(BaseModel):
     id: int
-    username: str
+    nome: str
     email: EmailStr
     tipo: str
 
@@ -11,7 +11,7 @@ class UserPublic(BaseModel):
 
 
 class UserCreate(BaseModel):
-    username: str
+    nome: str
     email: EmailStr
     password: str
     tipo: str = "morador"

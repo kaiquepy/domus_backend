@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from domus_backend.database import Base
+from domus_backend.db.base_class import Base
 
 # Classe que representa um usuário do sistema
 class User(Base):

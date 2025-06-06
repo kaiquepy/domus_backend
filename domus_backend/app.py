@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 
 from domus_backend.routers import auth, users
-from domus_backend.database import engine, Base
+from domus_backend.database import engine
+from domus_backend.db.base_class import Base
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
