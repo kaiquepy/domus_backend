@@ -2,32 +2,44 @@ services:
   domus_database:
     image: postgres
     container_name: domus_database
+    restart: always
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: app_user
       POSTGRES_DB: app_db
       POSTGRES_PASSWORD: app_password
-    ports:
-      - "5432:5432"
+    expose:
+      - 5432
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "app_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   domus_app:
-    image: domus_app
+    image: ghcr.io/kaiquepy/domus_backend:main
     container_name: domus_backend
-    build: .
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    develop:
-      watch:
-        - action: sync
-          path: ./domus_backend
-          target: /app/domus_backend
+    restart: always
     depends_on:
-      - domus_database
+      domus_database:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    expose:
+      - 3000
     environment:
       DATABASE_URL: postgresql+psycopg://app_user:app_password@domus_database:5432/app_db
+
+networks:
+  frontend:
+    external: true
+    name: proxy_network
+  backend:
+    driver: bridge
 
 volumes:
   pgdata:
