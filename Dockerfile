@@ -16,6 +16,6 @@ RUN poetry install --no-interaction --no-ansi --without dev
 
 USER app
 
-EXPOSE 3000
+EXPOSE 8000
 
 CMD [ "poetry", "run", "uvicorn", "--host", "0.0.0.0", "--reload", "domus_backend.app:app" ]

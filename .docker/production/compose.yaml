@@ -30,18 +30,9 @@ services:
       - backend
       - frontend
     expose:
-      - 3000
+      - 8000
     environment:
       DATABASE_URL: postgresql+psycopg://app_user:app_password@domus_database:5432/app_db
-
-  watchtower:
-    image: containrrr/watchtower
-    container_name: domus_watchtower
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json
-    command: --interval 30
 
 networks:
   frontend:
