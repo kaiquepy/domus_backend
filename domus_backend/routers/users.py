@@ -7,6 +7,11 @@ from domus_backend.schemas import UserCreate, UserPublic
 
 router = APIRouter(prefix='/users', tags=['users'])
 
+@router.get('/', response_model=list[UserPublic])
+def get_users(session: Session = Depends(get_session)):
+    users = session.query(User).all()
+    return users
+
 
 @router.post('/', response_model=UserPublic, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, session: Session = Depends(get_session)):
