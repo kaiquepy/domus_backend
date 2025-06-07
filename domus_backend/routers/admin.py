@@ -1,66 +1,78 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, HTTPException, status, Depends
-from pydantic import BaseModel, EmailStr
-from passlib.context import CryptContext
 
-# --- CONTEXTO DE CRIPTOGRAFIA PARA SENHAS ---
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from domus_backend.database import get_session
+from domus_backend.models import User
+from domus_backend.schemas import UserCreate, UserPublic, UserUpdate
 
-# --- DEFINIÇÃO DO ROTEADOR ---
 router = APIRouter(prefix='/admin', tags=['admin'])
 
-# --- MODELOS DE DADOS ---
-class AdminCreate(BaseModel):
-    nome: str  # Nome do administrador
-    email: EmailStr  # Validação automática de e-mail
-    senha: str  # Senha em texto puro (será hasheada)
 
-class AdminResponse(BaseModel):
-    id: int  # ID do administrador
-    nome: str
-    email: EmailStr
-    tipo: str
+@router.post('/', response_model=UserPublic, status_code=status.HTTP_201_CREATED)
+def create_admin(user_data: UserCreate, session: Session = Depends(get_session)):
+    if session.query(User).filter(User.email == user_data.email).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered",
+        )
+    
+    db_admin = User(
+        nome=user_data.nome,
+        email=user_data.email,
+        password=user_data.password,
+        tipo='admin',
+    )
+    session.add(db_admin)
+    session.commit()
+    session.refresh(db_admin)
+    return db_admin
 
-    class Config:
-        from_attributes = True  # Permite leitura de objetos ORM
 
-# --- DEPENDÊNCIA DE AUTORIZAÇÃO (SIMULAÇÃO) ---
-async def get_current_admin_user(token: str = "fake-token"):
-    # Aqui deveria validar o token e buscar o admin no banco
-    print(f"Token recebido e validado (simulação): {token}")
-    return {"username": "admin_existente", "tipo": "Administrador"}
+@router.get('/', response_model=list[UserPublic])
+def get_admins(session: Session = Depends(get_session)):
+    admins = session.query(User).filter(User.tipo == 'admin').all()
+    return admins
 
-# --- ENDPOINT PARA CRIAR ADMINISTRADOR ---
-@router.post(
-    '/',
-    response_model=AdminResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Cria um novo usuário Administrador",
-    description="Cria um novo administrador. Requer autenticação de um administrador já existente."
-)
-async def create_admin(
-    admin_data: AdminCreate,
-    current_admin: dict = Depends(get_current_admin_user)  # Autenticação simulada
+
+@router.put('/{admin_id}', response_model=UserPublic)
+def update_admin(
+    admin_id: int, user_update: UserUpdate, session: Session = Depends(get_session)
 ):
-    """
-    Cria um novo usuário administrador.
-    """
-    # 1. Gerar hash da senha
-    hashed_password = pwd_context.hash(admin_data.senha)
+    db_admin = session.query(User).filter(User.id == admin_id, User.tipo == 'admin').first()
+    if not db_admin:
+        raise HTTPException(status_code=404, detail="Admin user not found")
 
-    # 2. Preparar dados para inserção no banco (simulado)
-    new_admin_data_for_db = admin_data.model_dump()
-    new_admin_data_for_db.update({
-        "hashed_password": hashed_password,
-        "tipo": "Administrador"
-    })
-    del new_admin_data_for_db["senha"]  # Nunca armazene a senha em texto puro
+    for key, value in user_update.model_dump(exclude_unset=True).items():
+        setattr(db_admin, key, value)
+    
+    session.add(db_admin)
+    session.commit()
+    session.refresh(db_admin)
+    return db_admin
 
-    # 3. Simular criação no banco e retorno do novo admin
-    # (Substitua por lógica real de banco de dados)
-    return {
-        "id": 1,  # Simulação de ID gerado pelo banco
-        "nome": admin_data.nome,
-        "email": admin_data.email,
-        "tipo": "Administrador"
-    }
+
+@router.delete('/{admin_id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete_admin(admin_id: int, session: Session = Depends(get_session)):
+    db_admin = session.query(User).filter(User.id == admin_id, User.tipo == 'admin').first()
+    if not db_admin:
+        raise HTTPException(status_code=404, detail="Admin user not found")
+    
+    session.delete(db_admin)
+    session.commit()
+
+
+@router.patch('/promote/{user_id}', response_model=UserPublic)
+def promote_user(user_id: int, session: Session = Depends(get_session)):
+    db_user = session.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if db_user.tipo == 'admin':
+        raise HTTPException(status_code=400, detail="User is already an admin")
+
+    db_user.tipo = 'admin'
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
