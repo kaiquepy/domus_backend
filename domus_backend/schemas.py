@@ -1,5 +1,11 @@
 from pydantic import BaseModel, EmailStr
 
+class UserUpdate(BaseModel):
+    nome: str | None = None
+    email: EmailStr | None = None
+    password: str | None = None
+    tipo: str | None = None
+
 class UserPublic(BaseModel):
     id: int
     nome: str
