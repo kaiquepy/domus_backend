@@ -6,11 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="1175e43f-082f-4009-ac04-5846db57435b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domus_backend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domus_backend/routers/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/routers/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domus_backend/routers/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/routers/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domus_backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domus_backend/facades/auth_facade.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/facades/auth_facade.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domus_backend/routers/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/routers/admin.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,12 +35,12 @@
     &quot;assignee&quot;: &quot;charrualavinia&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/kaiquepy/domus_backend",
-    "accountId": "e6fa47b7-c6a7-4395-9cea-dae043bd51b0"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/kaiquepy/domus_backend&quot;,
+    &quot;accountId&quot;: &quot;e6fa47b7-c6a7-4395-9cea-dae043bd51b0&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 7
@@ -129,6 +126,7 @@
       <workItem from="1749167031913" duration="72000" />
       <workItem from="1749167115762" duration="2523000" />
       <workItem from="1749253872654" duration="4021000" />
+      <workItem from="1749300549593" duration="678000" />
     </task>
     <servers />
   </component>
