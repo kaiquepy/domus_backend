@@ -10,29 +10,17 @@ class AuthFacade:
         self.db = db_session
 
     def login(self, form_data: OAuth2PasswordRequestForm) -> User | None:
-        """Verifica as credenciais para um usuário comum."""
-        user = self.db.query(User).filter(User.email == form_data.username).first()
-
-        # Compara a senha do formulário diretamente com a senha do banco
-        if not user or user.password != form_data.password:
-            return None
-
-        return user
-
-    # --- MÉTODO NOVO PARA O LOGIN DE ADMIN ---
-    def login_admin(self, form_data: OAuth2PasswordRequestForm) -> User | None:
         """
-        Verifica as credenciais e o tipo do usuário para o login de admin.
+        Verifica as credenciais para qualquer tipo de usuário.
+        Retorna o objeto User completo em caso de sucesso, ou None caso contrário.
         """
         user = self.db.query(User).filter(User.email == form_data.username).first()
 
-        # 1. Verifica se o usuário existe e a senha está correta
+        # Verifica se o usuário existe e se a senha está correta
+        # (usando a comparação direta que você definiu)
         if not user or user.password != form_data.password:
             return None
 
-        # 2. VERIFICAÇÃO EXTRA: Garante que o usuário é um administrador
-        if user.tipo != 'admin':
-            return None  # Retorna None se um usuário comum tentar logar aqui
-
-        # 3. Se tudo estiver certo, retorna o objeto do usuário admin
+        # Se chegou aqui, o login é válido. Retornamos o usuário.
+        # A responsabilidade de verificar o "tipo" agora é do cliente.
         return user

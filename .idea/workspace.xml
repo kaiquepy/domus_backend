@@ -7,7 +7,6 @@
     <list default="true" id="1175e43f-082f-4009-ac04-5846db57435b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/domus_backend/facades/auth_facade.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/facades/auth_facade.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domus_backend/routers/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/routers/admin.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,7 +125,8 @@
       <workItem from="1749167031913" duration="72000" />
       <workItem from="1749167115762" duration="2523000" />
       <workItem from="1749253872654" duration="4021000" />
-      <workItem from="1749300549593" duration="678000" />
+      <workItem from="1749300549593" duration="2183000" />
+      <workItem from="1749321311272" duration="621000" />
     </task>
     <servers />
   </component>

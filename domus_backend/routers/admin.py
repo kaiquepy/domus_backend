@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from domus_backend.database import get_session
@@ -78,22 +77,3 @@ def promote_user(user_id: int, session: Session = Depends(get_session)):
     return db_user
 
 
-@router.post('/login', response_model=UserPublic)
-def admin_login(
-        form_data: OAuth2PasswordRequestForm = Depends(),
-        session: Session = Depends(get_session)
-):
-    """
-    Endpoint para autenticação de administradores.
-    Retorna os dados do admin em caso de sucesso.
-    """
-    facade = AuthFacade(session)
-    admin_user = facade.login_admin(form_data)  # Usa o novo método
-
-    if not admin_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email, senha ou permissão inválidos",
-        )
-
-    return admin_user
