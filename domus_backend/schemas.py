@@ -28,3 +28,18 @@ class UserCreate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class SolicitacaoCreate(BaseModel):
+    user_id: int
+    descricao: str
+
+
+class SolicitacaoPublic(BaseModel):
+    id: int
+    tipo_solicitacao: str
+    descricao: str
+    status: str
+    user_id: int
+
+    class Config:
+        from_attributes = True
