@@ -40,8 +40,7 @@ def create_user(user: UserCreate, session: Session = Depends(get_session)):
         nome=user.nome,
         email=user.email,
         password=user.password,
-        tipo='morador',  # Garante que este endpoint só crie moradores
-        # --- Atribui os novos campos ---
+        tipo='morador',
         bloco=user.bloco,
         apartamento=user.apartamento,
         curso=user.curso,
@@ -55,9 +54,3 @@ def create_user(user: UserCreate, session: Session = Depends(get_session)):
 
     return db_user
 
-#
-# As funções update_user e delete_user foram REMOVIDAS daqui porque
-# representavam uma falha de segurança. A funcionalidade de gerenciar
-# usuários (atualizar e deletar) já existe de forma segura no seu
-# roteador /admin.
-#
