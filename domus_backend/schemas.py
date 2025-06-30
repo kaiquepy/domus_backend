@@ -68,5 +68,8 @@ class SolicitacaoPublic(BaseModel):
     status: str
     user_id: int
 
+class SolicitacaoUpdate(BaseModel):
+    status: str
+
     class Config:
         from_attributes = True
