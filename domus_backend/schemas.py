@@ -50,8 +50,6 @@ class UserCreate(BaseModel):
     class Config:
         from_attributes = True
 
-# --- Token ---
-# Mantive seu schema de Token, é uma boa prática.
 class Token(BaseModel):
     access_token: str
     token_type: str
