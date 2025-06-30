@@ -1,3 +1,5 @@
+# domus_backend/models.py
+
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -7,14 +9,20 @@ from domus_backend.db.base_class import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)  # Identificador único do usuário
-    nome = Column(String, nullable=False)               # Nome do usuário
-    email = Column(String, unique=True, index=True, nullable=False)  # E-mail do usuário (único)
-    password = Column(String, nullable=False)           # Senha do usuário
-    tipo = Column(String, default='morador')            # Tipo do usuário (ex: morador, administrador)
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
+    tipo = Column(String, default='morador')
 
-    solicitacoes = relationship('Solicitacao', back_populates='user')  # Relação com as solicitações feitas pelo usuário
+    # --- NOVOS ATRIBUTOS ---
+    bloco = Column(String, nullable=True)          # Ex: "A", "B", etc.
+    apartamento = Column(String, nullable=True)   # Ex: "101", "204"
+    curso = Column(String, nullable=True)         # Ex: "Engenharia de Software"
+    matricula = Column(String, nullable=True, unique=True) # Matrícula do aluno
+    ano_de_entrada = Column(Integer, nullable=True) # Ex: 2023
 
+    solicitacoes = relationship('Solicitacao', back_populates='user')
 # Classe que representa uma solicitação feita por um usuário
 class Solicitacao(Base):
     __tablename__ = "solicitacoes"

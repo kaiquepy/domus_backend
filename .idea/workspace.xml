@@ -5,8 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1175e43f-082f-4009-ac04-5846db57435b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/domus_backend.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025-06-06_22_09_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025-06-06_22_09__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domus_backend/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/database.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/domus_backend/facades/auth_facade.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/facades/auth_facade.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domus_backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domus_backend/routers/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/routers/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domus_backend/routers/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/routers/users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domus_backend/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/schemas.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,7 +134,9 @@
       <workItem from="1749167115762" duration="2523000" />
       <workItem from="1749253872654" duration="4021000" />
       <workItem from="1749300549593" duration="2183000" />
-      <workItem from="1749321311272" duration="621000" />
+      <workItem from="1749321311272" duration="1820000" />
+      <workItem from="1749505051181" duration="1369000" />
+      <workItem from="1751320872481" duration="1000000" />
     </task>
     <servers />
   </component>
