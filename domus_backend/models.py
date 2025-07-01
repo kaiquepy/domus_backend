@@ -1,6 +1,6 @@
 # domus_backend/models.py
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
 from domus_backend.db.base_class import Base
@@ -23,6 +23,8 @@ class User(Base):
     ano_de_entrada = Column(Integer, nullable=True) # Ex: 2023
 
     solicitacoes = relationship('Solicitacao', back_populates='user')
+    consultas = relationship('Consulta', back_populates='usuario')
+
 # Classe que representa uma solicitação feita por um usuário
 class Solicitacao(Base):
     __tablename__ = "solicitacoes"
@@ -34,3 +36,19 @@ class Solicitacao(Base):
     user_id = Column(Integer, ForeignKey("users.id"))   # Chave estrangeira para o usuário que fez a solicitação
 
     user = relationship("User", back_populates="solicitacoes")  # Relação com o usuário que fez a solicitação
+
+class Consulta(Base):
+    __tablename__ = 'consultas'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    horario = Column(DateTime, unique=True, nullable=False)
+    usuario = relationship('User', back_populates='consultas')
+
+class Indisponibilidade(Base):
+    __tablename__ = 'indisponibilidades'
+
+    id = Column(Integer, primary_key=True, index=True)
+    horario_inicio = Column(DateTime, nullable=False)
+    horario_fim = Column(DateTime, nullable=False)
+    motivo = Column(String, nullable=True)

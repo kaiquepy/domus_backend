@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
 
 # --- UserUpdate ---
 # Schema para atualizar um usuário. Todos os campos são opcionais.
@@ -66,8 +67,34 @@ class SolicitacaoPublic(BaseModel):
     status: str
     user_id: int
 
+    # Adicione esta classe interna
+    class Config:
+        from_attributes = True
+
 class SolicitacaoUpdate(BaseModel):
     status: str
 
     class Config:
         from_attributes = True
+
+# --- NOVOS SCHEMAS PARA CONSULTAS ---
+
+# O que um usuário envia para agendar uma consulta
+class ConsultaCreate(BaseModel):
+    user_id: int
+    horario: datetime # Ex: "2025-07-25T10:00:00"
+
+# O que a API retorna como dados públicos de uma consulta
+class ConsultaPublic(BaseModel):
+    id: int
+    user_id: int
+    horario: datetime
+
+    class Config:
+        from_attributes = True
+
+# O que o admin envia para bloquear um período
+class IndisponibilidadeCreate(BaseModel):
+    horario_inicio: datetime
+    horario_fim: datetime
+    motivo: str | None = None
