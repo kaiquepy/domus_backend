@@ -33,7 +33,6 @@ def get_admins(session: Session = Depends(get_session)):
     admins = session.query(User).filter(User.tipo == 'admin').all()
     return admins
 
-
 @router.put('/{admin_id}', response_model=UserPublic)
 def update_admin(
     admin_id: int, user_update: UserUpdate, session: Session = Depends(get_session)
