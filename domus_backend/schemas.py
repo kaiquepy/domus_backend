@@ -1,8 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
-# --- UserUpdate ---
-# Schema para atualizar um usuário. Todos os campos são opcionais.
 class UserUpdate(BaseModel):
     nome: str | None = None
     email: EmailStr | None = None
@@ -15,14 +13,11 @@ class UserUpdate(BaseModel):
     matricula: str | None = None
     ano_de_entrada: int | None = None
 
-# --- UserPublic ---
-# O que a API retorna como dados públicos de um usuário.
 class UserPublic(BaseModel):
     id: int
     nome: str
     email: EmailStr
     tipo: str
-    # --- NOVOS ATRIBUTOS ---
     bloco: str | None = None
     apartamento: str | None = None
     curso: str | None = None
@@ -33,15 +28,11 @@ class UserPublic(BaseModel):
         from_attributes = True
 
 
-# --- UserCreate ---
-# O que a API espera receber para criar um novo usuário.
 class UserCreate(BaseModel):
     nome: str
     email: EmailStr
     password: str
-    # O tipo tem um valor padrão, então não precisa ser enviado
     tipo: str = "morador"
-    # --- NOVOS ATRIBUTOS (opcionais na criação) ---
     bloco: str | None = None
     apartamento: str | None = None
     curso: str | None = None
@@ -67,7 +58,6 @@ class SolicitacaoPublic(BaseModel):
     status: str
     user_id: int
 
-    # Adicione esta classe interna
     class Config:
         from_attributes = True
 
@@ -77,14 +67,11 @@ class SolicitacaoUpdate(BaseModel):
     class Config:
         from_attributes = True
 
-# --- NOVOS SCHEMAS PARA CONSULTAS ---
 
-# O que um usuário envia para agendar uma consulta
 class ConsultaCreate(BaseModel):
     user_id: int
-    horario: datetime # Ex: "2025-07-25T10:00:00"
+    horario: datetime 
 
-# O que a API retorna como dados públicos de uma consulta
 class ConsultaPublic(BaseModel):
     id: int
     user_id: int
@@ -93,7 +80,6 @@ class ConsultaPublic(BaseModel):
     class Config:
         from_attributes = True
 
-# O que o admin envia para bloquear um período
 class IndisponibilidadeCreate(BaseModel):
     horario_inicio: datetime
     horario_fim: datetime

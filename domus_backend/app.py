@@ -4,10 +4,8 @@ from domus_backend.routers import auth, users, admin, solicitacoes, consultas
 from domus_backend.database import engine
 from domus_backend.db.base_class import Base
 
-# Create the database tables
 Base.metadata.create_all(bind=engine)
 
-# Initialize the FastAPI application
 app = FastAPI()
 
 app.include_router(auth.router)

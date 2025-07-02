@@ -5,7 +5,6 @@ from sqlalchemy.orm import relationship
 
 from domus_backend.db.base_class import Base
 
-# Classe que representa um usuário do sistema
 class User(Base):
     __tablename__ = "users"
 
@@ -14,28 +13,25 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
     tipo = Column(String, default='morador')
-
-    # --- NOVOS ATRIBUTOS ---
-    bloco = Column(String, nullable=True)          # Ex: "A", "B", etc.
-    apartamento = Column(String, nullable=True)   # Ex: "101", "204"
-    curso = Column(String, nullable=True)         # Ex: "Engenharia de Software"
-    matricula = Column(String, nullable=True, unique=True) # Matrícula do aluno
-    ano_de_entrada = Column(Integer, nullable=True) # Ex: 2023
+    bloco = Column(String, nullable=True)
+    apartamento = Column(String, nullable=True)
+    curso = Column(String, nullable=True)
+    matricula = Column(String, nullable=True, unique=True)
+    ano_de_entrada = Column(Integer, nullable=True)
 
     solicitacoes = relationship('Solicitacao', back_populates='user')
     consultas = relationship('Consulta', back_populates='usuario')
 
-# Classe que representa uma solicitação feita por um usuário
 class Solicitacao(Base):
     __tablename__ = "solicitacoes"
 
-    id = Column(Integer, primary_key=True, index=True)  # Identificador único da solicitação
-    tipo_solicitacao = Column(String, nullable=False)   # Tipo da solicitação (ex: manutenção, documento)
-    descricao = Column(String, nullable=False)          # Descrição detalhada da solicitação
-    status = Column(String, default="Enviado")          # Status atual da solicitação (ex: Enviado, Analisando, Concluído, Negado)
-    user_id = Column(Integer, ForeignKey("users.id"))   # Chave estrangeira para o usuário que fez a solicitação
+    id = Column(Integer, primary_key=True, index=True)
+    tipo_solicitacao = Column(String, nullable=False)
+    descricao = Column(String, nullable=False)
+    status = Column(String, default="Enviado")
+    user_id = Column(Integer, ForeignKey("users.id"))
 
-    user = relationship("User", back_populates="solicitacoes")  # Relação com o usuário que fez a solicitação
+    user = relationship("User", back_populates="solicitacoes")
 
 class Consulta(Base):
     __tablename__ = 'consultas'

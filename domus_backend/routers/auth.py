@@ -15,12 +15,10 @@ def login(
         form_data: OAuth2PasswordRequestForm = Depends(),
         session: Session = Depends(get_session)
 ):
-    # 1. Cria a fachada (chama o "atendente")
     facade = AuthFacade(session)
     user = facade.login(form_data)
-    # 2. Faz o pedido
 
-    if not user: # 3. Analisa e lida com a resposta
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email ou senha incorretos",
