@@ -2,8 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from domus_backend.database import get_session
-from domus_backend.models import User
-from domus_backend.schemas import UserCreate, UserPublic, UserUpdate
+from domus_backend.models import User, Aviso
+
+from domus_backend.schemas import (
+    UserCreate,
+    UserPublic,
+    UserUpdate,
+    AvisoCreate, # <-- Add this
+    AvisoPublic  # <-- Add this
+)
 
 router = APIRouter(prefix='/admin', tags=['admin'])
 
@@ -76,4 +83,34 @@ def promote_user(user_id: int, session: Session = Depends(get_session)):
     session.refresh(db_user)
     return db_user
 
+@router.post('/avisos/', response_model=AvisoPublic, status_code=status.HTTP_201_CREATED)
+def create_aviso(
+    aviso_data: AvisoCreate,
+    session: Session = Depends(get_session)
 
+):
+
+    novo_aviso = Aviso(
+        titulo=aviso_data.titulo,
+        conteudo=aviso_data.conteudo
+    )
+    session.add(novo_aviso)
+    session.commit()
+    session.refresh(novo_aviso)
+    return novo_aviso
+
+
+@router.delete('/avisos/{aviso_id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete_aviso(aviso_id: int, session: Session = Depends(get_session)):
+
+    db_aviso = session.query(Aviso).filter(Aviso.id == aviso_id).first()
+
+    if not db_aviso:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Aviso not found"
+        )
+
+    session.delete(db_aviso)
+    session.commit()
+
+    return

@@ -12,18 +12,14 @@ router = APIRouter(prefix='/users', tags=['users'])
 
 @router.get('/', response_model=list[UserPublic])
 def get_users(session: Session = Depends(get_session)):
-    """
-    Lista todos os usuários. (Em um app real, isso também seria protegido).
-    """
+
     users = session.query(User).all()
     return users
 
 
 @router.post('/', response_model=UserPublic, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, session: Session = Depends(get_session)):
-    """
-    Cria um novo usuário (morador) com os dados completos.
-    """
+
     if session.query(User).filter(User.email == user.email).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -1,7 +1,6 @@
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
 
-# --- UserUpdate ---
-# Schema para atualizar um usuário. Todos os campos são opcionais.
 class UserUpdate(BaseModel):
     nome: str | None = None
     email: EmailStr | None = None
@@ -14,8 +13,6 @@ class UserUpdate(BaseModel):
     matricula: str | None = None
     ano_de_entrada: int | None = None
 
-# --- UserPublic ---
-# O que a API retorna como dados públicos de um usuário.
 class UserPublic(BaseModel):
     id: int
     nome: str
@@ -32,15 +29,11 @@ class UserPublic(BaseModel):
         from_attributes = True
 
 
-# --- UserCreate ---
-# O que a API espera receber para criar um novo usuário.
 class UserCreate(BaseModel):
     nome: str
     email: EmailStr
     password: str
-    # O tipo tem um valor padrão, então não precisa ser enviado
     tipo: str = "morador"
-    # --- NOVOS ATRIBUTOS (opcionais na criação) ---
     bloco: str | None = None
     apartamento: str | None = None
     curso: str | None = None
@@ -68,6 +61,22 @@ class SolicitacaoPublic(BaseModel):
 
 class SolicitacaoUpdate(BaseModel):
     status: str
+
+    class Config:
+        from_attributes = True
+
+
+class AvisoBase(BaseModel):
+    titulo: str
+    conteudo: str
+
+class AvisoCreate(AvisoBase):
+    pass
+
+class AvisoPublic(AvisoBase):
+
+    id: int
+    data_publicacao: datetime
 
     class Config:
         from_attributes = True

@@ -1,6 +1,7 @@
 # domus_backend/models.py
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 from domus_backend.db.base_class import Base
@@ -34,3 +35,15 @@ class Solicitacao(Base):
     user_id = Column(Integer, ForeignKey("users.id"))   # Chave estrangeira para o usuário que fez a solicitação
 
     user = relationship("User", back_populates="solicitacoes")  # Relação com o usuário que fez a solicitação
+
+class Aviso(Base):
+    __tablename__ = "avisos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    titulo = Column(String, nullable=False)
+    conteudo = Column(String, nullable=False)
+    # Este campo irá registrar a data e hora automaticamente
+    # no momento da criação do aviso.
+    data_publicacao = Column(
+        DateTime(timezone=True), server_default=func.now()
+    )
