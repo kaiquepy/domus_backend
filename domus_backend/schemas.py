@@ -73,9 +73,18 @@ class ConsultaCreate(BaseModel):
     horario: datetime 
 
 class ConsultaPublic(BaseModel):
+
+class AvisoBase(BaseModel):
+    titulo: str
+    conteudo: str
+
+class AvisoCreate(AvisoBase):
+    pass
+
+class AvisoPublic(AvisoBase):
+
     id: int
-    user_id: int
-    horario: datetime
+    data_publicacao: datetime
 
     class Config:
         from_attributes = True

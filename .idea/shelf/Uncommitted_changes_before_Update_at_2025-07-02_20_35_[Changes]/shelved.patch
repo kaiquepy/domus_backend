@@ -1,0 +1,300 @@
+Index: domus_backend/models.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># domus_backend/models.py\n\nfrom sqlalchemy import Column, DateTime, ForeignKey, Integer, String\nfrom sqlalchemy.sql import func\nfrom sqlalchemy.orm import relationship\n\nfrom domus_backend.db.base_class import Base\n\n# Classe que representa um usuário do sistema\nclass User(Base):\n    __tablename__ = \"users\"\n\n    id = Column(Integer, primary_key=True, index=True)\n    nome = Column(String, nullable=False)\n    email = Column(String, unique=True, index=True, nullable=False)\n    password = Column(String, nullable=False)\n    tipo = Column(String, default='morador')\n\n    # --- NOVOS ATRIBUTOS ---\n    bloco = Column(String, nullable=True)          # Ex: \"A\", \"B\", etc.\n    apartamento = Column(String, nullable=True)   # Ex: \"101\", \"204\"\n    curso = Column(String, nullable=True)         # Ex: \"Engenharia de Software\"\n    matricula = Column(String, nullable=True, unique=True) # Matrícula do aluno\n    ano_de_entrada = Column(Integer, nullable=True) # Ex: 2023\n\n    solicitacoes = relationship('Solicitacao', back_populates='user')\n# Classe que representa uma solicitação feita por um usuário\nclass Solicitacao(Base):\n    __tablename__ = \"solicitacoes\"\n\n    id = Column(Integer, primary_key=True, index=True)  # Identificador único da solicitação\n    tipo_solicitacao = Column(String, nullable=False)   # Tipo da solicitação (ex: manutenção, documento)\n    descricao = Column(String, nullable=False)          # Descrição detalhada da solicitação\n    status = Column(String, default=\"Enviado\")          # Status atual da solicitação (ex: Enviado, Analisando, Concluído, Negado)\n    user_id = Column(Integer, ForeignKey(\"users.id\"))   # Chave estrangeira para o usuário que fez a solicitação\n\n    user = relationship(\"User\", back_populates=\"solicitacoes\")  # Relação com o usuário que fez a solicitação\n\nclass Aviso(Base):\n    __tablename__ = \"avisos\"\n\n    id = Column(Integer, primary_key=True, index=True)\n    titulo = Column(String, nullable=False)\n    conteudo = Column(String, nullable=False)\n    # Este campo irá registrar a data e hora automaticamente\n    # no momento da criação do aviso.\n    data_publicacao = Column(\n        DateTime(timezone=True), server_default=func.now()\n    )\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/domus_backend/models.py b/domus_backend/models.py
+--- a/domus_backend/models.py	(revision 36edfcdf4c840ce615055fff440eb05be076a234)
++++ b/domus_backend/models.py	(date 1751499246849)
+@@ -24,6 +24,8 @@
+     ano_de_entrada = Column(Integer, nullable=True) # Ex: 2023
+ 
+     solicitacoes = relationship('Solicitacao', back_populates='user')
++    consultas = relationship('Consulta', back_populates='usuario')
++
+ # Classe que representa uma solicitação feita por um usuário
+ class Solicitacao(Base):
+     __tablename__ = "solicitacoes"
+@@ -47,3 +49,20 @@
+     data_publicacao = Column(
+         DateTime(timezone=True), server_default=func.now()
+     )
++
++
++class Consulta(Base):
++    __tablename__ = 'consultas'
++
++    id = Column(Integer, primary_key=True, index=True)
++    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
++    horario = Column(DateTime, unique=True, nullable=False)
++    usuario = relationship('User', back_populates='consultas')
++
++class Indisponibilidade(Base):
++    __tablename__ = 'indisponibilidades'
++
++    id = Column(Integer, primary_key=True, index=True)
++    horario_inicio = Column(DateTime, nullable=False)
++    horario_fim = Column(DateTime, nullable=False)
++    motivo = Column(String, nullable=True)
+\ No newline at end of file
+Index: domus_backend/schemas.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from pydantic import BaseModel, EmailStr\nfrom datetime import datetime\n\nclass UserUpdate(BaseModel):\n    nome: str | None = None\n    email: EmailStr | None = None\n    password: str | None = None\n    tipo: str | None = None\n    # --- NOVOS ATRIBUTOS ---\n    bloco: str | None = None\n    apartamento: str | None = None\n    curso: str | None = None\n    matricula: str | None = None\n    ano_de_entrada: int | None = None\n\nclass UserPublic(BaseModel):\n    id: int\n    nome: str\n    email: EmailStr\n    tipo: str\n    # --- NOVOS ATRIBUTOS ---\n    bloco: str | None = None\n    apartamento: str | None = None\n    curso: str | None = None\n    matricula: str | None = None\n    ano_de_entrada: int | None = None\n\n    class Config:\n        from_attributes = True\n\n\nclass UserCreate(BaseModel):\n    nome: str\n    email: EmailStr\n    password: str\n    tipo: str = \"morador\"\n    bloco: str | None = None\n    apartamento: str | None = None\n    curso: str | None = None\n    matricula: str | None = None\n    ano_de_entrada: int | None = None\n\n    class Config:\n        from_attributes = True\n\nclass Token(BaseModel):\n    access_token: str\n    token_type: str\n\nclass SolicitacaoCreate(BaseModel):\n    user_id: int\n    descricao: str\n\n\nclass SolicitacaoPublic(BaseModel):\n    id: int\n    tipo_solicitacao: str\n    descricao: str\n    status: str\n    user_id: int\n\nclass SolicitacaoUpdate(BaseModel):\n    status: str\n\n    class Config:\n        from_attributes = True\n\n\nclass AvisoBase(BaseModel):\n    titulo: str\n    conteudo: str\n\nclass AvisoCreate(AvisoBase):\n    pass\n\nclass AvisoPublic(AvisoBase):\n\n    id: int\n    data_publicacao: datetime\n\n    class Config:\n        from_attributes = True
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/domus_backend/schemas.py b/domus_backend/schemas.py
+--- a/domus_backend/schemas.py	(revision 36edfcdf4c840ce615055fff440eb05be076a234)
++++ b/domus_backend/schemas.py	(date 1751499289559)
+@@ -59,6 +59,10 @@
+     status: str
+     user_id: int
+ 
++    # Adicione esta classe interna
++    class Config:
++        from_attributes = True
++
+ class SolicitacaoUpdate(BaseModel):
+     status: str
+ 
+@@ -79,4 +83,26 @@
+     data_publicacao: datetime
+ 
+     class Config:
+-        from_attributes = True
+\ No newline at end of file
++        from_attributes = True
++
++# --- NOVOS SCHEMAS PARA CONSULTAS ---
++
++# O que um usuário envia para agendar uma consulta
++class ConsultaCreate(BaseModel):
++    user_id: int
++    horario: datetime # Ex: "2025-07-25T10:00:00"
++
++# O que a API retorna como dados públicos de uma consulta
++class ConsultaPublic(BaseModel):
++    id: int
++    user_id: int
++    horario: datetime
++
++    class Config:
++        from_attributes = True
++
++# O que o admin envia para bloquear um período
++class IndisponibilidadeCreate(BaseModel):
++    horario_inicio: datetime
++    horario_fim: datetime
++    motivo: str | None = None
+\ No newline at end of file
+Index: domus_backend/app.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from fastapi import FastAPI\n\nfrom domus_backend.routers import auth, users, admin, solicitacoes, avisos\nfrom domus_backend.database import engine\nfrom domus_backend.db.base_class import Base\n\n\nBase.metadata.create_all(bind=engine)\n\napp = FastAPI()\n\napp.include_router(auth.router)\napp.include_router(users.router)\napp.include_router(admin.router)\napp.include_router(solicitacoes.router)\napp.include_router(avisos.router)\n\n\n@app.get('/')\ndef read_root():\n    return {'Message': 'Hello World'}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/domus_backend/app.py b/domus_backend/app.py
+--- a/domus_backend/app.py	(revision 36edfcdf4c840ce615055fff440eb05be076a234)
++++ b/domus_backend/app.py	(date 1751499157984)
+@@ -1,5 +1,6 @@
+ from fastapi import FastAPI
+ 
++from domus_backend.routers import auth, users, admin, solicitacoes, consultas
+ from domus_backend.routers import auth, users, admin, solicitacoes, avisos
+ from domus_backend.database import engine
+ from domus_backend.db.base_class import Base
+@@ -14,6 +15,7 @@
+ app.include_router(admin.router)
+ app.include_router(solicitacoes.router)
+ app.include_router(avisos.router)
++app.include_router(consultas.router)
+ 
+ 
+ @app.get('/')
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"1175e43f-082f-4009-ac04-5846db57435b\" name=\"Changes\" comment=\"\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/domus_backend.iml\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025-06-06_22_09_[Changes]/shelved.patch\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025-06-06_22_09__Changes_.xml\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/domus_backend/database.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/domus_backend/database.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/domus_backend/facades/auth_facade.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/domus_backend/facades/auth_facade.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/domus_backend/models.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/domus_backend/models.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/domus_backend/routers/auth.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/domus_backend/routers/auth.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/domus_backend/routers/users.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/domus_backend/routers/users.py\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/domus_backend/schemas.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/domus_backend/schemas.py\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\n      <map>\n        <entry key=\"$PROJECT_DIR$\" value=\"router-usuario\" />\n      </map>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitHubPullRequestSearchHistory\">{\n  &quot;lastFilter&quot;: {\n    &quot;state&quot;: &quot;OPEN&quot;,\n    &quot;assignee&quot;: &quot;charrualavinia&quot;\n  }\n}</component>\n  <component name=\"GithubPullRequestsUISettings\">{\n  &quot;selectedUrlAndAccountId&quot;: {\n    &quot;url&quot;: &quot;https://github.com/kaiquepy/domus_backend&quot;,\n    &quot;accountId&quot;: &quot;e6fa47b7-c6a7-4395-9cea-dae043bd51b0&quot;\n  }\n}</component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;customColor&quot;: &quot;&quot;,\n  &quot;associatedIndex&quot;: 7\n}</component>\n  <component name=\"ProjectId\" id=\"2xehe57cwTkwpgJBoC2h7svQBI8\" />\n  <component name=\"ProjectLevelVcsManager\">\n    <ConfirmationsSetting value=\"1\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">{\n  &quot;keyToString&quot;: {\n    &quot;Docker.Dockerfile.executor&quot;: &quot;Run&quot;,\n    &quot;Docker.compose.yaml: Compose Deployment.executor&quot;: &quot;Run&quot;,\n    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\n    &quot;git-widget-placeholder&quot;: &quot;main&quot;,\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\n    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\n  }\n}</component>\n  <component name=\"RunManager\" selected=\"Docker.Dockerfile\">\n    <configuration name=\"Dockerfile\" type=\"docker-deploy\" factoryName=\"dockerfile\" temporary=\"true\" server-name=\"Docker\">\n      <deployment type=\"dockerfile\">\n        <settings>\n          <option name=\"sourceFilePath\" value=\"Dockerfile\" />\n        </settings>\n      </deployment>\n      <method v=\"2\" />\n    </configuration>\n    <configuration name=\"compose.yaml: Compose Deployment\" type=\"docker-deploy\" factoryName=\"docker-compose.yml\" temporary=\"true\" server-name=\"Docker\">\n      <deployment type=\"docker-compose.yml\">\n        <settings>\n          <option name=\"envFilePath\" value=\"\" />\n          <option name=\"sourceFilePath\" value=\"compose.yaml\" />\n        </settings>\n      </deployment>\n      <method v=\"2\" />\n    </configuration>\n    <list>\n      <item itemvalue=\"Docker.Dockerfile\" />\n      <item itemvalue=\"Docker.compose.yaml: Compose Deployment\" />\n    </list>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Docker.Dockerfile\" />\n        <item itemvalue=\"Docker.compose.yaml: Compose Deployment\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SharedIndexes\">\n    <attachedChunks>\n      <set>\n        <option value=\"bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-PY-251.25410.159\" />\n        <option value=\"bundled-python-sdk-e0ed3721d81e-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.25410.159\" />\n      </set>\n    </attachedChunks>\n  </component>\n  <component name=\"SvnConfiguration\">\n    <configuration>$PROJECT_DIR$/../.subversion</configuration>\n  </component>\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"1175e43f-082f-4009-ac04-5846db57435b\" name=\"Changes\" comment=\"\" />\n      <created>1748304541899</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1748304541899</updated>\n      <workItem from=\"1748304545102\" duration=\"1119000\" />\n      <workItem from=\"1748381858415\" duration=\"1411000\" />\n      <workItem from=\"1748384773107\" duration=\"2002000\" />\n      <workItem from=\"1749165859575\" duration=\"695000\" />\n      <workItem from=\"1749166585436\" duration=\"308000\" />\n      <workItem from=\"1749166940991\" duration=\"80000\" />\n      <workItem from=\"1749167031913\" duration=\"72000\" />\n      <workItem from=\"1749167115762\" duration=\"2523000\" />\n      <workItem from=\"1749253872654\" duration=\"4021000\" />\n      <workItem from=\"1749300549593\" duration=\"2183000\" />\n      <workItem from=\"1749321311272\" duration=\"1820000\" />\n      <workItem from=\"1749505051181\" duration=\"1369000\" />\n      <workItem from=\"1751320872481\" duration=\"1000000\" />\n    </task>\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 36edfcdf4c840ce615055fff440eb05be076a234)
++++ b/.idea/workspace.xml	(date 1751499289931)
+@@ -5,15 +5,10 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="1175e43f-082f-4009-ac04-5846db57435b" name="Changes" comment="">
+-      <change beforePath="$PROJECT_DIR$/.idea/domus_backend.iml" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025-06-06_22_09_[Changes]/shelved.patch" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025-06-06_22_09__Changes_.xml" beforeDir="false" />
++      <change afterPath="$PROJECT_DIR$/domus_backend/routers/consultas.py" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/domus_backend/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/database.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/domus_backend/facades/auth_facade.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/facades/auth_facade.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/domus_backend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/app.py" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/domus_backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/models.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/domus_backend/routers/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/routers/auth.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/domus_backend/routers/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/routers/users.py" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/domus_backend/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/domus_backend/schemas.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+@@ -60,23 +55,23 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;Docker.Dockerfile.executor&quot;: &quot;Run&quot;,
+-    &quot;Docker.compose.yaml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "Docker.Dockerfile.executor": "Run",
++    "Docker.compose.yaml: Compose Deployment.executor": "Run",
++    "ModuleVcsDetector.initialDetectionPerformed": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "RunOnceActivity.git.unshallow": "true",
++    "git-widget-placeholder": "Merging main",
++    "node.js.detected.package.eslint": "true",
++    "node.js.detected.package.tslint": "true",
++    "node.js.selected.package.eslint": "(autodetect)",
++    "node.js.selected.package.tslint": "(autodetect)",
++    "nodejs_package_manager_path": "npm",
++    "settings.editor.selected.configurable": "preferences.lookFeel",
++    "vue.rearranger.settings.migration": "true"
+   }
+-}</component>
++}]]></component>
+   <component name="RunManager" selected="Docker.Dockerfile">
+     <configuration name="Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+       <deployment type="dockerfile">
+@@ -137,6 +132,7 @@
+       <workItem from="1749321311272" duration="1820000" />
+       <workItem from="1749505051181" duration="1369000" />
+       <workItem from="1751320872481" duration="1000000" />
++      <workItem from="1751497143398" duration="942000" />
+     </task>
+     <servers />
+   </component>
+Index: domus_backend/routers/consultas.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/domus_backend/routers/consultas.py b/domus_backend/routers/consultas.py
+new file mode 100644
+--- /dev/null	(date 1751499096409)
++++ b/domus_backend/routers/consultas.py	(date 1751499096409)
+@@ -0,0 +1,96 @@
++from fastapi import APIRouter, Depends, HTTPException, status
++from sqlalchemy.orm import Session
++from datetime import date, datetime, time, timedelta
++
++from domus_backend.database import get_session
++from domus_backend.models import User, Consulta, Indisponibilidade
++from domus_backend.schemas import ConsultaCreate, ConsultaPublic, IndisponibilidadeCreate
++
++router = APIRouter(prefix='/consultas', tags=['consultas'])
++
++# --- LÓGICA DE HORÁRIOS ---
++
++def gerar_horarios_atendimento(dia: date) -> list[datetime]:
++    """Gera a lista completa de horários de atendimento para um dia específico."""
++    horarios_disponiveis = []
++    # Horários da manhã: 8, 9, 10, 11
++    for hora in range(8, 12):
++        horarios_disponiveis.append(datetime.combine(dia, time(hour=hora)))
++    # Horários da tarde: 13, 14, 15, 16
++    for hora in range(13, 17):
++        horarios_disponiveis.append(datetime.combine(dia, time(hour=hora)))
++    return horarios_disponiveis
++
++# --- ENDPOINTS PARA USUÁRIOS ---
++
++@router.get("/horarios_disponiveis/", response_model=list[datetime])
++def get_horarios_disponiveis(dia: date, session: Session = Depends(get_session)):
++    """
++    Retorna uma lista de horários disponíveis para agendamento em um dia específico.
++    Exemplo de uso: /consultas/horarios_disponiveis/?dia=2025-07-25
++    """
++    # 1. Gera todos os horários possíveis para o dia
++    todos_horarios = gerar_horarios_atendimento(dia)
++
++    # 2. Busca todos os agendamentos já feitos para aquele dia
++    consultas_agendadas = session.query(Consulta).filter(
++        Consulta.horario >= datetime.combine(dia, time.min),
++        Consulta.horario <= datetime.combine(dia, time.max)
++    ).all()
++    horarios_ocupados = {c.horario for c in consultas_agendadas}
++
++    # 3. Busca os períodos de indisponibilidade definidos pelo admin
++    indisponibilidades = session.query(Indisponibilidade).filter(
++        Indisponibilidade.horario_inicio <= datetime.combine(dia, time.max),
++        Indisponibilidade.horario_fim >= datetime.combine(dia, time.min)
++    ).all()
++
++    # 4. Remove os horários ocupados e indisponíveis da lista de todos os horários
++    horarios_disponiveis = [h for h in todos_horarios if h not in horarios_ocupados]
++    
++    final_disponiveis = []
++    for horario in horarios_disponiveis:
++        indisponivel = False
++        for i in indisponibilidades:
++            if i.horario_inicio <= horario < i.horario_fim:
++                indisponivel = True
++                break
++        if not indisponivel:
++            final_disponiveis.append(horario)
++
++    return final_disponiveis
++
++
++@router.post("/", response_model=ConsultaPublic, status_code=status.HTTP_201_CREATED)
++def agendar_consulta(consulta_data: ConsultaCreate, session: Session = Depends(get_session)):
++    """Agenda uma nova consulta para um usuário em um horário específico."""
++    # Validações
++    if not session.query(User).filter(User.id == consulta_data.user_id).first():
++        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
++    
++    dia_agendamento = consulta_data.horario.date()
++    if session.query(Consulta).filter(Consulta.user_id == consulta_data.user_id, Consulta.horario >= datetime.combine(dia_agendamento, time.min), Consulta.horario <= datetime.combine(dia_agendamento, time.max)).first():
++        raise HTTPException(status_code=400, detail="Usuário já possui uma consulta agendada para este dia.")
++
++    horarios_disponiveis = get_horarios_disponiveis(dia=dia_agendamento, session=session)
++    if consulta_data.horario not in horarios_disponiveis:
++        raise HTTPException(status_code=400, detail="Horário indisponível ou já agendado.")
++
++    # Criação da consulta
++    nova_consulta = Consulta(**consulta_data.model_dump())
++    session.add(nova_consulta)
++    session.commit()
++    session.refresh(nova_consulta)
++    return nova_consulta
++
++# --- ENDPOINTS PARA ADMINISTRAÇÃO ---
++
++# O ideal é que este endpoint esteja em /admin/consultas/indisponibilidade,
++# mas para simplificar, vamos colocá-lo aqui por enquanto.
++@router.post("/indisponibilidade/", status_code=status.HTTP_201_CREATED)
++def criar_indisponibilidade(ind_data: IndisponibilidadeCreate, session: Session = Depends(get_session)):
++    """Cria um novo período de indisponibilidade (acesso de admin)."""
++    nova_indisponibilidade = Indisponibilidade(**ind_data.model_dump())
++    session.add(nova_indisponibilidade)
++    session.commit()
++    return {"message": "Período de indisponibilidade criado com sucesso."}
+\ No newline at end of file

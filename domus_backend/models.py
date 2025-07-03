@@ -1,6 +1,7 @@
 # domus_backend/models.py
 
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 from domus_backend.db.base_class import Base
@@ -32,6 +33,27 @@ class Solicitacao(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
 
     user = relationship("User", back_populates="solicitacoes")
+
+class Aviso(Base):
+    __tablename__ = "avisos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tipo_solicitacao = Column(String, nullable=False)
+    descricao = Column(String, nullable=False)
+    status = Column(String, default="Enviado")
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User", back_populates="solicitacoes")
+
+class Aviso(Base):
+    __tablename__ = "avisos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    titulo = Column(String, nullable=False)
+    conteudo = Column(String, nullable=False)
+    data_publicacao = Column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 class Consulta(Base):
     __tablename__ = 'consultas'
